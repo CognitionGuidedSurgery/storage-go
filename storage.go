@@ -26,13 +26,12 @@ type StorageHandler struct {
 	RootDir string
 }
 
-// Split a file path into the dirname and basename
-//
-//
+// PathSplit splits file path into the dirname and basename
 func PathSplit(path string) (string, string) {
 	return filepath.Dir(path), filepath.Base(path)
 }
 
+// ServeGet handles all GET requests
 func ServeGet(w http.ResponseWriter, r *http.Request, path string) {
 	// Copying file into the response
 	file, err := os.Open(path)
@@ -58,6 +57,7 @@ func ServeGet(w http.ResponseWriter, r *http.Request, path string) {
 	}
 }
 
+// ServePut  handles all Put requests
 func ServePut(w http.ResponseWriter, r *http.Request, path string) {
 	dir, _ := PathSplit(path)
 	os.MkdirAll(dir, 0755)
@@ -82,11 +82,13 @@ func ServePut(w http.ResponseWriter, r *http.Request, path string) {
 
 }
 
+// ServePost handles POST requests
 func ServePost(w http.ResponseWriter, r *http.Request, path string) {
 	w.WriteHeader(501)
 	fmt.Fprintf(w, "not implemented")
 }
 
+// ServeDelete handles Delete requests
 func ServeDelete(w http.ResponseWriter, r *http.Request, path string) {
 	err := os.RemoveAll(path)
 	if err != nil {
@@ -95,7 +97,7 @@ func ServeDelete(w http.ResponseWriter, r *http.Request, path string) {
 	}
 }
 
-// Handling the FileStorage Protocol
+// ServeHTTP Handling the FileStorage Protocol
 func (sh *StorageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	uri, _ := filepath.Abs(r.RequestURI)
 	method := r.Method
@@ -116,9 +118,9 @@ func (sh *StorageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// retrieve an option from the environment,
+// GetOption retrieves an option from the environment,
 // if no such value exists, fallback is return
-func get_option(key, fallback string) string {
+func GetOption(key, fallback string) string {
 	value := os.Getenv(key)
 	if value == "" {
 		return fallback
@@ -127,12 +129,12 @@ func get_option(key, fallback string) string {
 }
 
 func main() {
-	bind_host := get_option("STORAGE_HOST", ":8080")
+	bind_host := GetOption("STORAGE_HOST", ":8080")
 	fmt.Printf("Starting server, listening on %s\n", bind_host)
 	//	http.HandleFunc("/", handler)
 	handler := new(StorageHandler)
 
-	handler.RootDir = get_option("STORAGE_ROOT", "./test")
+	handler.RootDir = GetOption("STORAGE_ROOT", "./test")
 	err := http.ListenAndServe(":8080", handler)
 
 	if err != nil {
