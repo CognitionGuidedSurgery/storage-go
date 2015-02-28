@@ -1,8 +1,6 @@
-/*
- *
- *
- *
- */
+// Storage-Go provides an implementation of the storage protocol (subset of WebDav)
+// Version: 1.0
+// Author: Alexander Weigl <alexander.weigl@student.kit.edu>
 package main
 
 import "path/filepath"
